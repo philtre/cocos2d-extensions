@@ -13,24 +13,16 @@ const GLchar * ccPositionTexture_uTint_vert =
 "													\n\
 attribute vec4 a_position;							\n\
 attribute vec2 a_texCoord;							\n\
-uniform vec4 u_tintMult;                            \n\
-uniform vec4 u_tintOff;                             \n\
 													\n\
 #ifdef GL_ES										\n\
-varying lowp vec4 v_tintMult;                       \n\
-varying lowp vec4 v_tintOff;                        \n\
 varying mediump vec2 v_texCoord;					\n\
 #else												\n\
-varying vec4 v_tintMult;                            \n\
-varying vec4 v_tintOff;                             \n\
 varying vec2 v_texCoord;							\n\
 #endif												\n\
 													\n\
 void main()											\n\
 {													\n\
     gl_Position = CC_MVPMatrix * a_position;		\n\
-	v_tintMult = u_tintMult;						\n\
-	v_tintOff = u_tintOff;                          \n\
 	v_texCoord = a_texCoord;						\n\
 }													\n\
 ";
@@ -41,14 +33,14 @@ const GLchar * ccPositionTexture_uTint_frag =
 precision lowp float;						\n\
 #endif										\n\
 											\n\
-varying vec4 v_tintMult;                    \n\
-varying vec4 v_tintOff;                     \n\
+uniform vec4 u_tintMult;                            \n\
+uniform vec4 u_tintOff;                             \n\
 varying vec2 v_texCoord;					\n\
 uniform sampler2D CC_Texture0;				\n\
 											\n\
 void main()									\n\
 {											\n\
-	gl_FragColor = clamp(texture2D(CC_Texture0, v_texCoord) * v_tintMult + v_tintOff, 0.0, 1.0);\n\
+	gl_FragColor = clamp(texture2D(CC_Texture0, v_texCoord) * u_tintMult + u_tintOff, 0.0, 1.0);\n\
 }											\n\
 ";
 
@@ -65,8 +57,13 @@ GLint uniformTintOffset_;
 	{
         if(!isTintedSpriteShaderInit_)
         {
-            CCGLProgram *p = [[CCGLProgram alloc] initWithVertexShaderByteArray:ccPositionTexture_uTint_vert
-                                           fragmentShaderByteArray:ccPositionTexture_uTint_frag];
+            CCGLProgram *p =
+                [[CCGLProgram alloc]
+                    initWithVertexShaderByteArray:
+                        ccPositionTexture_uTint_vert
+                    fragmentShaderByteArray:
+                        ccPositionTexture_uTint_frag
+                ];
             
             [p addAttribute:kCCAttributeNamePosition index:kCCVertexAttrib_Position];
             [p addAttribute:kCCAttributeNameTexCoord index:kCCVertexAttrib_TexCoords];
