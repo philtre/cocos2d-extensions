@@ -12,6 +12,7 @@
 {
 	// RGBA Tint protocol
     ccTint4F    tint_;
+    
 }
 /** tint: conforms to CCRGBATintProtocol protocol */
 @property (nonatomic,readwrite) ccTint4F tint;

@@ -59,7 +59,6 @@
     color_ = color3;
     
     tint_ = cct4f(0, 0, 0, tint_.multiplier.a, color3.r/255.0f, color3.g/255.0f, color3.b/255.0f, 0);
-    [self updateTint];
 }
 
 -(ccTint4F)tint
@@ -70,14 +69,16 @@
 -(void)setTint:(ccTint4F)aTint
 {
     tint_ = aTint;
-    [self updateTint];
 }
 
--(void)updateTint
+
+
+-(void)draw
 {
     [shaderProgram_ use];
 	[shaderProgram_ setUniformLocation:kCCShaderUniformPos_PositionTexture_uTint_uTintMult with4fv:(GLfloat *)&tint_.multiplier count:1];
 	[shaderProgram_ setUniformLocation:kCCShaderUniformPos_PositionTexture_uTint_uTintOff with4fv:(GLfloat *)&tint_.offset count:1];
+    [super draw];
 }
 
 @end
