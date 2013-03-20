@@ -5,48 +5,8 @@
 //
 
 #import "CCTintedSprite.h"
-#import "CCShaderCache.h"
+#import "CCShaderCache+CustomShaders.h"
 #import "CCGLProgram.h"
-#import "Support/OpenGL_Internal.h"
-
-const GLchar * ccPositionTexture_uTint_vert =
-"													\n\
-attribute vec4 a_position;							\n\
-attribute vec2 a_texCoord;							\n\
-													\n\
-#ifdef GL_ES										\n\
-varying mediump vec2 v_texCoord;					\n\
-#else												\n\
-varying vec2 v_texCoord;							\n\
-#endif												\n\
-													\n\
-void main()											\n\
-{													\n\
-    gl_Position = CC_MVPMatrix * a_position;		\n\
-	v_texCoord = a_texCoord;						\n\
-}													\n\
-";
-
-const GLchar * ccPositionTexture_uTint_frag =
-"											\n\
-#ifdef GL_ES								\n\
-precision lowp float;						\n\
-#endif										\n\
-											\n\
-uniform vec4 u_tintMult;                            \n\
-uniform vec4 u_tintOff;                             \n\
-varying vec2 v_texCoord;					\n\
-uniform sampler2D CC_Texture0;				\n\
-											\n\
-void main()									\n\
-{											\n\
-	gl_FragColor = clamp(texture2D(CC_Texture0, v_texCoord) * u_tintMult + u_tintOff, 0.0, 1.0);\n\
-}											\n\
-";
-
-static BOOL	isTintedSpriteShaderInit_ = NO;
-GLint uniformTintMultiplier_;
-GLint uniformTintOffset_;
 
 @implementation CCTintedSprite
 
@@ -55,38 +15,8 @@ GLint uniformTintOffset_;
 {
 	if( (self = [super initWithTexture:texture rect:rect rotated:rotated]) )
 	{
-        if(!isTintedSpriteShaderInit_)
-        {
-            CCGLProgram *p =
-                [[CCGLProgram alloc]
-                    initWithVertexShaderByteArray:
-                        ccPositionTexture_uTint_vert
-                    fragmentShaderByteArray:
-                        ccPositionTexture_uTint_frag
-                ];
-            
-            [p addAttribute:kCCAttributeNamePosition index:kCCVertexAttrib_Position];
-            [p addAttribute:kCCAttributeNameTexCoord index:kCCVertexAttrib_TexCoords];
-            
-            [p link];
-            [p updateUniforms];
-            
-            [[CCShaderCache sharedShaderCache] addProgram:p forKey:kCCShader_PositionTexture_uTint];
-            
-            uniformTintMultiplier_ = glGetUniformLocation( p->program_, "u_tintMult");
-            uniformTintOffset_ = glGetUniformLocation( p->program_, "u_tintOff");
-            
-            
-            [p release];
-            
-            CHECK_GL_ERROR_DEBUG();
-            isTintedSpriteShaderInit_ = YES;
-        }
-        
 		self.shaderProgram = [[CCShaderCache sharedShaderCache] programForKey:kCCShader_PositionTexture_uTint];
-
         self.tint = cctDEFAULT;
-
 	}
 	return self;
 }
@@ -146,8 +76,8 @@ GLint uniformTintOffset_;
 -(void)updateTint
 {
     [shaderProgram_ use];
-	[shaderProgram_ setUniformLocation:uniformTintMultiplier_ with4fv:(GLfloat *)&tint_.multiplier count:1];
-	[shaderProgram_ setUniformLocation:uniformTintOffset_ with4fv:(GLfloat *)&tint_.offset count:1];
+	[shaderProgram_ setUniformLocation:kCCShaderUniformPos_PositionTexture_uTint_uTintMult with4fv:(GLfloat *)&tint_.multiplier count:1];
+	[shaderProgram_ setUniformLocation:kCCShaderUniformPos_PositionTexture_uTint_uTintOff with4fv:(GLfloat *)&tint_.offset count:1];
 }
 
 @end
