@@ -113,7 +113,7 @@ GLint uniformTintOffset_;
 
 -(void) setOpacity:(GLubyte) anOpacity
 {
-	opacity_			= anOpacity;
+	opacity_ = anOpacity;
     
     tint_.multiplier.a = opacity_/255.0f;
     tint_.offset.a = 0.0f;
@@ -145,11 +145,9 @@ GLint uniformTintOffset_;
 
 -(void)updateTint
 {
-    GLfloat multiplier[4] = {tint_.multiplier.r,tint_.multiplier.g,tint_.multiplier.b,tint_.multiplier.a};
-    GLfloat offset[4] = {tint_.offset.r,tint_.offset.g,tint_.offset.b,tint_.offset.a};
     [shaderProgram_ use];
-	[shaderProgram_ setUniformLocation:uniformTintMultiplier_ with4fv:multiplier count:1];
-	[shaderProgram_ setUniformLocation:uniformTintOffset_ with4fv:offset count:1];
+	[shaderProgram_ setUniformLocation:uniformTintMultiplier_ with4fv:(GLfloat *)&tint_.multiplier count:1];
+	[shaderProgram_ setUniformLocation:uniformTintOffset_ with4fv:(GLfloat *)&tint_.offset count:1];
 }
 
 @end
